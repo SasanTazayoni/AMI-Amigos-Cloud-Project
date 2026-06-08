@@ -153,7 +153,17 @@ db.update_data({"name": "bulbasaur"}, {"url": "https://updated.com"})
 db.delete_data({"name": "bulbasaur"})
 ```
 
-## Run CRUD tests (local MongoDB)
+## Testing
+
+### API
+
+No dependencies required:
+
+```bash
+uv run test_api.py
+```
+
+### MongoDB CRUD (local)
 
 Requires MongoDB running locally on port 27017. Run in order:
 
@@ -164,14 +174,61 @@ uv run test_update.py
 uv run test_delete.py
 ```
 
+### JSON serialization (local)
+
+Requires MongoDB running locally with data already inserted (run `test_create.py` first):
+
+```bash
+uv run test_serialise.py
+```
+
+### Full pipeline (EC2)
+
+Requires the EC2 instance to be running and `.env` configured:
+
+```bash
+uv run test_pipeline.py
+```
+
+### S3 CRUD
+
+Requires AWS credentials configured. Run in order:
+
+```bash
+uv run test_s3_create.py
+uv run test_s3_read.py
+uv run test_s3_update.py
+uv run test_s3_delete.py
+```
+
 ## S3 Bucket
 
 Data is uploaded to: `se-data-with-ai-etl-project/AMI-Amigos/`
 
-## Data Notes
+## Design Decisions
+
+### Dataset
+
+The Pokemon API was chosen as the data source because it is free, open, requires no authentication, and returns structured data well-suited to document storage in MongoDB.
+
+### Data reduction
 
 Each Pokemon document stored in MongoDB contains only `name` and `url` fields from the PokeAPI. Full details (id, height, weight, base experience, moves, sprites etc.) were intentionally omitted as the full payload per Pokemon is extremely large and would make the dataset impractical to store and export.
 
 The `get_pokemon_details()` function exists in the code but is not called in the main pipeline for this reason.
 
-JSON serialization uses `bson.json_util.dumps` instead of the standard `json.dumps` to correctly handle MongoDB's BSON types (e.g. ObjectId).
+### JSON serialization
+
+`bson.json_util.dumps` is used instead of the standard `json.dumps` to correctly handle MongoDB's BSON types (e.g. ObjectId), which would otherwise cause a serialization error.
+
+### SSH tunnel
+
+MongoDB on the EC2 instance is configured to listen on `127.0.0.1` only and is not exposed to the public internet. The SSH tunnel forwards a local port through the SSH connection to MongoDB on EC2, so no additional ports need to be opened in the security group beyond port 22.
+
+### Pipeline development
+
+The pipeline was built and tested incrementally:
+1. API fetch verified first in isolation
+2. MongoDB storage tested locally before involving EC2
+3. JSON serialization tested against local MongoDB data
+4. S3 upload tested independently before running the full pipeline
