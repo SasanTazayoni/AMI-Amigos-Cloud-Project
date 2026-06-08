@@ -65,7 +65,7 @@ Download and install from: https://docs.aws.amazon.com/cli/latest/userguide/inst
 aws configure
 ```
 
-This will prompt for your access key, secret key, region, and output format. Alternatively, set them manually:
+This will prompt for your access key, secret key, region, and output format. Credentials are stored in a `.aws` folder in your home directory (`~/.aws/`). Alternatively, set them manually:
 
 `~/.aws/credentials`:
 ```ini
@@ -101,7 +101,7 @@ except ClientError as e:
 ## EC2 Setup
 
 1. Launch an EC2 instance (Ubuntu 24.04, t3.micro) in the AWS console
-2. Create a key pair and download the `.pem` file to `~/.ssh/`
+2. Create a key pair and download the `.pem` file to the `.ssh` folder in your home directory (`~/.ssh/`)
 3. In the security group, open the following ports:
    - Port 22 (SSH) — required for the SSH tunnel
    - Port 27017 (MongoDB) — optional, only if connecting directly
