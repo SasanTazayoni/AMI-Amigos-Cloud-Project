@@ -12,8 +12,61 @@ PokeAPI --> Python --> MongoDB (EC2) --> JSON Export --> AWS S3
 
 - Python 3.13+
 - [uv](https://github.com/astral-sh/uv)
-- AWS credentials configured (`aws configure`)
-- SSH key for EC2 instance at `~/.ssh/se-louis-key-pair.pem`
+- AWS credentials configured (see below)
+- SSH key for EC2 instance (see below)
+
+## AWS Setup
+
+### Credentials
+
+Configure your AWS credentials using the CLI:
+
+```bash
+aws configure
+```
+
+This will prompt for your access key, secret key, region, and output format. Alternatively, set them manually:
+
+`~/.aws/credentials`:
+```ini
+[default]
+aws_access_key_id = YOUR_ACCESS_KEY
+aws_secret_access_key = YOUR_SECRET_KEY
+```
+
+`~/.aws/config`:
+```ini
+[default]
+region = eu-west-1
+output = json
+```
+
+To verify your credentials are working:
+
+```python
+import boto3
+from botocore.exceptions import NoCredentialsError, ClientError
+
+s3_client = boto3.client('s3')
+
+try:
+    bucket_list = s3_client.list_buckets()
+    print("Credentials valid. Buckets:", [b['Name'] for b in bucket_list['Buckets']])
+except NoCredentialsError:
+    print("No credentials found — check your ~/.aws/credentials file.")
+except ClientError as e:
+    print("Credentials rejected by AWS:", e.response['Error']['Message'])
+```
+
+### SSH Key
+
+Place your EC2 key pair `.pem` file at `~/.ssh/your-key-pair.pem` and update the path in `.env`:
+
+```
+EC2_IP=your-ec2-public-ip
+```
+
+The key path in `main.py` defaults to `~/.ssh/se-louis-key-pair.pem` — update this to match your own key file name.
 
 ## Install dependencies
 
