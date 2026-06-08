@@ -117,5 +117,5 @@ if __name__=='__main__':
     json_data = db.bson_convert()
 
     s3 = S3()
-    s3.upload_data(json_data, 'pokemon.txt')
+    s3.upload_data(json_data, 'pokemon.json')
 
