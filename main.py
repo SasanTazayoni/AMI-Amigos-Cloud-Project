@@ -10,7 +10,10 @@ import pymongo
 from bson.json_util import dumps
 import boto3
 from sshtunnel import SSHTunnelForwarder
-import os 
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def get_all_pokemon(limit=1500):
     try:
@@ -67,7 +70,8 @@ class S3:
 
 class Mongo:
 
-    def __init__(self, EC2_ip='34.245.56.84'):
+    def __init__(self, EC2_ip=None):
+        EC2_ip = EC2_ip or os.getenv('EC2_IP')
 
         self.tunnel = SSHTunnelForwarder(
             (EC2_ip, 22),
@@ -117,5 +121,5 @@ if __name__=='__main__':
     json_data = db.bson_convert()
 
     s3 = S3()
-    s3.upload_data(json_data, 'pokemon.json')
+    s3.upload_data(json_data, 'pokemon.txt')
 
