@@ -42,7 +42,11 @@ This installs:
 
 ## Environment Variables
 
-Create a `.env` file in the project root:
+A `.env.example` file is included in the repo. Copy it and fill in your own values:
+
+```bash
+cp .env.example .env
+```
 
 ```
 EC2_IP=your-ec2-public-ip
